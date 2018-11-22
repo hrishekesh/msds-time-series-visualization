@@ -5,6 +5,78 @@ import java.util.Arrays;
 class Weather{
   private Map<String, City> timeSeriesData = new HashMap<String, City>();
   
+  private float tempMax = 0.0;
+  private float tempMin = 0.0;
+  private float humMax = 0.0;
+  private float humMin = 0.0;
+  private float pressMax = 0.0;
+  private float pressMin = 0.0;
+  private float directionMax = 0.0;
+  private float directionMin = 0.0;
+  private float speedMax = 0.0;
+  private float speedMin = 0.0;
+  
+  float getTempMax() {
+    return tempMax;
+  }
+  void setTempMax(float tempMax) {
+    this.tempMax = tempMax;
+  }
+  float getTempMin() {
+    return tempMin;
+  }
+  void setTempMin(float tempMin) {
+    this.tempMin = tempMin;
+  }
+  float getHumMax() {
+    return humMax;
+  }
+  void setHumMax(float humMax) {
+    this.humMax = humMax;
+  }
+  float getHumMin() {
+    return humMin;
+  }
+  void setHumMin(float humMin) {
+    this.humMin = humMin;
+  }
+  float getPressMax() {
+    return pressMax;
+  }
+  void setPressMax(float pressMax) {
+    this.pressMax = pressMax;
+  }
+  float getPressMin() {
+    return pressMin;
+  }
+  void setPressMin(float pressMin) {
+    this.pressMin = pressMin;
+  }
+  float getDirectionMax() {
+    return directionMax;
+  }
+  void setDirectionMax(float directionMax) {
+    this.directionMax = directionMax;
+  }
+  float getDirectionMin() {
+    return directionMin;
+  }
+  void setDirectionMin(float directionMin) {
+    this.directionMin = directionMin;
+  }
+  float getSpeedMax() {
+    return speedMax;
+  }
+  void setSpeedMax(float speedMax) {
+    this.speedMax = speedMax;
+  }
+  float getSpeedMin() {
+    return speedMin;
+  }
+  void setSpeedMin(float speedMin) {
+    this.speedMin = speedMin;
+  }
+  
   Map<String, City> getTimeSeriesData() {
     return timeSeriesData;
   }
@@ -49,6 +121,19 @@ class Weather{
                                                       ?Float.parseFloat(windSpeedRow.get(j)):0);
         String mapKey = humidityRow.get(0) + " | " + city.getName();
         timeSeriesData.put(mapKey, city);
+        
+        //determine maximum and minimum values  for each field
+        humMax = (city.getHumidity() > humMax)?city.getHumidity():humMax;
+        pressMax = (city.getPressure() > pressMax)?city.getPressure():pressMax;
+        tempMax = (city.getTemperature() > tempMax)?city.getTemperature():tempMax;
+        directionMax = (city.getWindDirection() > directionMax)?city.getWindDirection():directionMax;
+        speedMax = (city.getWindSpeed() > speedMax)?city.getWindSpeed():speedMax;
+        
+        humMin = (city.getHumidity() < humMin)?city.getHumidity():humMin;
+        pressMin = (city.getPressure() < pressMin)?city.getPressure():pressMin;
+        tempMin = (city.getTemperature() < tempMin)?city.getTemperature():tempMin;
+        directionMin = (city.getWindDirection() < directionMin)?city.getWindDirection():directionMin;
+        speedMin = (city.getWindSpeed() < speedMin)?city.getWindSpeed():speedMin;
       }
                                                          
     }
