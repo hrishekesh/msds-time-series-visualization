@@ -7,7 +7,7 @@ class City{
   private String country;
   private float latitude;
   private float longitude;
-
+    private Date recordDate;
     private float humidity;
     private float pressure;
     private float temperature;
@@ -63,6 +63,12 @@ class City{
   }
   void setCountry(String country) {
     this.country = country;
+  }
+  Date getRecordDate() {
+    return recordDate;
+  }
+  void setRecordDate(Date recordDate) {
+    this.recordDate = recordDate;
   }
   float getLatitude() {
     return latitude;
