@@ -6,8 +6,8 @@ Set<Integer> selectedYearList = new HashSet<Integer>();
 Set<String> selectedAttributeList = new HashSet<String>();
 String selectedCountry;
 float xStart = 50, xEnd, yStart =75, yEnd, bottomMargin = 50;
-float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingX = 0.0000001;
-float numValXaxis, xScale = 20;
+float pixelSpacingYHum, pixelSpacingYTemp;
+float numValXaxis, xWidth = 800;
 Map<String, City> data;
 
 void setup(){
@@ -23,14 +23,14 @@ void setup(){
   print("WindSpeed ===> Min: " + cityData.getSpeedMin() + " Max: " +cityData.getSpeedMax() +"\n");
   print("Date ===> Min: " + cityData.getMinDate() + " Max: " +cityData.getMaxDate() +"\n");
   
-  numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xScale;
+  numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
   print(numValXaxis + "\n");
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
                       - cityData.getHumMin());
   pixelSpacingYTemp = (height - yStart - bottomMargin)  / (cityData.getTempMax() 
                       - cityData.getTempMin());
   yEnd = height - bottomMargin;
-  xEnd = (numValXaxis)* pixelSpacingX + xStart;
+  xEnd = xWidth + xStart;
   
   print(yEnd + "\n");
   print(xEnd + "\n");
@@ -90,7 +90,7 @@ void drawDataPoints(){
     City city = data.get(key);
     if("Albuquerque".equals(city.getName())){
       float xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
-                    * pixelSpacingX * 3.0+ xStart;
+                    /numValXaxis + xStart;
       float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
       float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
       //print(city.getHumidity()+"\n");
@@ -108,7 +108,8 @@ void addYaxisLabels(){
   fill(0);
   textAlign(CENTER);
   for (int year: cityData.getYearList()){
-    String recordDate = "2012-01-01 00:00:00";
+    String recordDate;
+    float xVal = 0 + xStart;
     if (year > 2012){
       recordDate = year + "-01-01 00:00:00";
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
@@ -119,10 +120,12 @@ void addYaxisLabels(){
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      float xVal = (convertedRecordDate.getTime() - cityData.getMinDate().getTime()) 
-                  * pixelSpacingX / xScale + xStart;
+      xVal = (convertedRecordDate.getTime() - cityData.getMinDate().getTime())/numValXaxis 
+                   + xStart;
+    }
       print(year + " | " + xVal + "\n");
       text(year, xVal, yEnd+15);
-    }
+      stroke(126);
+      line(xVal, yStart, xVal, yEnd);
   }
 }

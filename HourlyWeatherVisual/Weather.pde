@@ -138,7 +138,7 @@ class Weather{
   }
   
   Date convertStringToDate(String recordDate) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Date convertedRecordDate = new Date(); 
     try {
       convertedRecordDate= sdf.parse(recordDate);
