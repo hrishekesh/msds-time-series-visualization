@@ -6,26 +6,32 @@ Set<Integer> selectedYearList = new HashSet<Integer>();
 Set<String> selectedAttributeList = new HashSet<String>();
 String selectedCountry;
 float xStart = 50, xEnd, yStart =75, yEnd, bottomMargin = 50;
-float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingX = 0.01;
-float numValXaxis = 6*12*31*24;
+float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingX = 0.0000001;
+float numValXaxis, xScale = 20;
 Map<String, City> data;
 
 void setup(){
-  size(800, 600);
+  size(1000, 600);
   cityData = new Weather();
   print("Min and max values for each of the attributes are:");
   print("\n");
   print("Humidity ===> Min: " + cityData.getHumMin() + " Max: " +cityData.getHumMax() +"\n");
   print("Pressure ===> Min: " + cityData.getPressMin() + " Max: " +cityData.getPressMax() +"\n");
-  print("Temperature ===> Min: " + cityData.getTempMin() + " Max: " +cityData.getTempMax() +"\n");
-  print("WindDirection ===> Min: " + cityData.getDirectionMin() + " Max: " +cityData.getDirectionMax() +"\n");
+  print("Temperaturn: " + cityData.getTempMin() + " Max: " +cityData.getTempMax() +"\n");
+  print("WindDirection ===> Min: " + cityData.getDirectionMin() + " Max: " +
+                cityData.getDirectionMax() +"\n");
   print("WindSpeed ===> Min: " + cityData.getSpeedMin() + " Max: " +cityData.getSpeedMax() +"\n");
   print("Date ===> Min: " + cityData.getMinDate() + " Max: " +cityData.getMaxDate() +"\n");
   
-  pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()- cityData.getHumMin());
-  pixelSpacingYTemp = (height - yStart - bottomMargin)  / (cityData.getTempMax()- cityData.getTempMin());
+  numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xScale;
+  print(numValXaxis + "\n");
+  pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
+                      - cityData.getHumMin());
+  pixelSpacingYTemp = (height - yStart - bottomMargin)  / (cityData.getTempMax() 
+                      - cityData.getTempMin());
   yEnd = height - bottomMargin;
   xEnd = (numValXaxis)* pixelSpacingX + xStart;
+  
   print(yEnd + "\n");
   print(xEnd + "\n");
   smooth();
@@ -72,6 +78,7 @@ void setup(){
   
   //Plot humidity
   drawDataPoints();
+  addYaxisLabels();
 }
 
 void draw(){
@@ -82,23 +89,40 @@ void drawDataPoints(){
   for(String key : data.keySet()){
     City city = data.get(key);
     if("Albuquerque".equals(city.getName())){
-      float xVal = calculateXPos(city.getRecordDate()) * pixelSpacingX + xStart;
+      float xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
+                    * pixelSpacingX * 3.0+ xStart;
       float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
       float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
       //print(city.getHumidity()+"\n");
       fill(#0080ff);
       ellipse(xVal, yValHum, 1, 2);
+      
+      fill(#ffff00);
+      ellipse(xVal, yValTemp, 1, 2);
     }
     
   }
 }
 
-// TODO: remove deprecated methods
-float calculateXPos(Date currentDate){
-  float xPos = (currentDate.getYear()-cityData.getMinDate().getYear()) * 12*31*24 +
-                (currentDate.getMonth() - cityData.getMinDate().getMonth()) *31*24 +  
-                (currentDate.getDate() - cityData.getMinDate().getDate()) * 24 +
-                (currentDate.getHours() - cityData.getMinDate().getHours());
-                //print(currentDate + " | "+xPos + "\n");
-  return xPos;
+void addYaxisLabels(){
+  fill(0);
+  textAlign(CENTER);
+  for (int year: cityData.getYearList()){
+    String recordDate = "2012-01-01 00:00:00";
+    if (year > 2012){
+      recordDate = year + "-01-01 00:00:00";
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+      Date convertedRecordDate = new Date(); 
+      try {
+        convertedRecordDate= sdf.parse(recordDate);
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      float xVal = (convertedRecordDate.getTime() - cityData.getMinDate().getTime()) 
+                  * pixelSpacingX / xScale + xStart;
+      print(year + " | " + xVal + "\n");
+      text(year, xVal, yEnd+15);
+    }
+  }
 }
