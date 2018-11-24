@@ -1,13 +1,14 @@
 
 Weather cityData;
 // filter variables
-Set<String> selectedCityList = new HashSet<String>();
+List<String> cityList;
 Set<Integer> selectedYearList = new HashSet<Integer>();
 Set<String> selectedAttributeList = new HashSet<String>();
-String selectedCountry;
+String selectedCity = "New York";
 float xStart = 50, xEnd, yStart =75, yEnd, bottomMargin = 50;
 float pixelSpacingYHum, pixelSpacingYTemp;
 float numValXaxis, xWidth = 800;
+CheckBox cityCheckbox;
 Map<String, City> data;
 
 void setup(){
@@ -70,25 +71,31 @@ void setup(){
       break;
     }
   }
+  cityList = new ArrayList<String>(cityData.getCityList());
+  cityCheckbox= new CheckBox();
+}
+
+void draw(){
   background(224);
   fill(255);
   rectMode(CORNERS);
   noStroke( );
   rect(xStart, yStart, xEnd, yEnd);
-  
   //Plot humidity
   drawDataPoints();
   addYaxisLabels();
-}
-
-void draw(){
-  
+  textAlign(LEFT);
+  cityCheckbox.setContainer(xEnd + 10, yStart, xEnd + 10 + 125, yStart + 400);
+  cityCheckbox.setValues(cityList);
+  cityCheckbox.setName("Select City");
+  cityCheckbox.setSelected(selectedCity);
+  cityCheckbox.drawSelectBox();
 }
 
 void drawDataPoints(){
   for(String key : data.keySet()){
     City city = data.get(key);
-    if("Albuquerque".equals(city.getName())){
+    if(selectedCity.equals(city.getName())){
       float xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
                     /numValXaxis + xStart;
       float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
@@ -129,3 +136,15 @@ void addYaxisLabels(){
       line(xVal, yStart, xVal, yEnd);
   }
 }
+
+void mousePressed(){
+    //print(mouseX + " | " + mouseY + "\n");
+    if (mouseX > cityCheckbox.getxStart()+5 &&  mouseX < cityCheckbox.getxStart()+15
+        && mouseY > cityCheckbox.getyStart()+15 ){
+          int probableSelection = (int)(mouseY - (cityCheckbox.getyStart()+15)) / 15;
+          int inCheckBox = (int)(mouseY - (cityCheckbox.getyStart()+15)) % 15;
+          if (inCheckBox <= 10){
+            selectedCity = cityList.get(probableSelection);
+          }
+    }
+  }
