@@ -90,6 +90,12 @@ void draw(){
   cityCheckbox.setName("Select City");
   cityCheckbox.setSelected(selectedCity);
   cityCheckbox.drawSelectBox();
+  
+  //title
+  textSize(26);
+  text("Hourly weather data for United States", xStart + 200 , yStart - 40);
+  
+  textSize(10);
 }
 
 void drawDataPoints(){
