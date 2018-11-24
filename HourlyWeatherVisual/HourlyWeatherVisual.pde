@@ -85,7 +85,7 @@ void draw(){
   drawDataPoints();
   addYaxisLabels();
   textAlign(LEFT);
-  cityCheckbox.setContainer(xEnd + 10, yStart, xEnd + 10 + 125, yStart + 400);
+  cityCheckbox.setContainer(xEnd + 10, yStart, xEnd + 10 + 125, yStart + 415);
   cityCheckbox.setValues(cityList);
   cityCheckbox.setName("Select City");
   cityCheckbox.setSelected(selectedCity);
@@ -143,7 +143,7 @@ void mousePressed(){
         && mouseY > cityCheckbox.getyStart()+15 ){
           int probableSelection = (int)(mouseY - (cityCheckbox.getyStart()+15)) / 15;
           int inCheckBox = (int)(mouseY - (cityCheckbox.getyStart()+15)) % 15;
-          if (inCheckBox <= 10){
+          if (inCheckBox <= 10 && probableSelection < cityList.size()){
             selectedCity = cityList.get(probableSelection);
           }
     }

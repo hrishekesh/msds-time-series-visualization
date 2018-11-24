@@ -175,7 +175,8 @@ class Weather{
       
       for (int j=1; j < cityAttributes.length; j++){
         List<String> row = Arrays.asList(cityAttributes[j].split(","));
-        City city = new City();
+        if(row.get(1).equals("United States")){
+          City city = new City();
         city.setName(row.get(0));
         city.setCountry(row.get(1));
         city.setLatitude(Float.parseFloat(row.get(2)));
@@ -219,6 +220,7 @@ class Weather{
         tempMin = (city.getTemperature() < tempMin)?city.getTemperature():tempMin;
         directionMin = (city.getWindDirection() < directionMin)?city.getWindDirection():directionMin;
         speedMin = (city.getWindSpeed() < speedMin)?city.getWindSpeed():speedMin;
+        }
       }
                                                          
     }
