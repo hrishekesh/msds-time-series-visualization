@@ -28,7 +28,6 @@ class Weather{
   Set<Integer> yearList = new HashSet<Integer>();
   Set<String> attributeList = new HashSet<String>();
 
-
   public Set<String> getCityList() {
     return cityList;
   }

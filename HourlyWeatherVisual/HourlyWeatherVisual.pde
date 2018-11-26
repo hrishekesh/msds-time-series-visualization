@@ -1,3 +1,4 @@
+import java.util.Collections;
 
 Weather cityData;
 // filter variables
@@ -11,23 +12,14 @@ float numValXaxis, xWidth = 800;
 CheckBox cityCheckbox;
 Map<String, City> data;
 HScrollbar hs;
+Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
+int selectedYear = 0;
 
 void setup(){
   size(1000, 600);
   text("Loading. Please wait . . . ", width/2, height/2);
   cityData = new Weather();
-  print("Min and max values for each of the attributes are:");
-  print("\n");
-  print("Humidity ===> Min: " + cityData.getHumMin() + " Max: " +cityData.getHumMax() +"\n");
-  print("Pressure ===> Min: " + cityData.getPressMin() + " Max: " +cityData.getPressMax() +"\n");
-  print("Temperature: " + cityData.getTempMin() + " Max: " +cityData.getTempMax() +"\n");
-  print("WindDirection ===> Min: " + cityData.getDirectionMin() + " Max: " +
-                cityData.getDirectionMax() +"\n");
-  print("WindSpeed ===> Min: " + cityData.getSpeedMin() + " Max: " +cityData.getSpeedMax() +"\n");
-  print("Date ===> Min: " + cityData.getMinDate() + " Max: " +cityData.getMaxDate() +"\n");
-  
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
-  print(numValXaxis + "\n");
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
                       - cityData.getHumMin());
   pixelSpacingYTemp = (height - yStart - bottomMargin)  / (cityData.getTempMax() 
@@ -37,44 +29,10 @@ void setup(){
   yEnd = height - bottomMargin;
   xEnd = xWidth + xStart;
   
-  print(yEnd + "\n");
-  print(xEnd + "\n");
   smooth();
   
-  for(int year: cityData.getYearList()){
-    print(year + "\n");
-  }
-  
-  for(String city: cityData.getCityList()){
-    print(city + "\n");
-  }
-  
-  for(String country: cityData.getCountryList()){
-    print(country + "\n");
-  }
-  
-  for(String attribute: cityData.getAttributeList()){
-    print(attribute + "\n");
-  }
-  
-  // we can use the data as below:
   data = cityData.getTimeSeriesData();
-  int count = 1;
-  for(String key : data.keySet()){
-    print(key);
-    print("\n");
-    City city = data.get(key);
-    print(city.getHumidity());
-    print("\n");
-    print(city.getPressure());
-    print("\n");
-    print(city.getRecordDate());
-    print("\n");
-    count++;
-    if (count>10){
-      break;
-    }
-  }
+
   cityList = new ArrayList<String>(cityData.getCityList());
   cityCheckbox= new CheckBox();
   
@@ -87,15 +45,9 @@ void draw(){
   rectMode(CORNERS);
   noStroke( );
   rect(xStart, yStart, xEnd, yEnd);
-  //Plot humidity
   drawDataPoints();
-  addYaxisLabels();
-  textAlign(LEFT);
-  cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
-  cityCheckbox.setValues(cityList);
-  cityCheckbox.setName("Select City");
-  cityCheckbox.setSelected(selectedCity);
-  cityCheckbox.drawSelectBox();
+  addXaxisLabels();
+  drawCitySelectionBoxes();
   
   //title
   textSize(26);
@@ -104,7 +56,7 @@ void draw(){
   textSize(10);
   //hs.drawScrollBar();
   
-  addXAxisLabels();
+  addYAxisLabels();
   
   
 }
@@ -113,52 +65,91 @@ void drawDataPoints(){
   for(String key : data.keySet()){
     City city = data.get(key);
     if(selectedCity.equals(city.getName())){
-      float xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
+      float xVal = 0;
+      if (selectedYear != 0){
+        String endDate = selectedYear + "-12-31 23:00:00";
+        String startDate = selectedYear + "-01-01 00:00:00";
+        float denom = (cityData.convertStringToDate(endDate).getTime() 
+                      - cityData.convertStringToDate(startDate).getTime())/xWidth;
+        if(city.getRecordDate().getYear()+1900 == selectedYear){
+          xVal = (city.getRecordDate().getTime() - 
+                cityData.convertStringToDate(startDate).getTime()) /denom + xStart;
+        }
+      }
+      else{
+        xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
                     /numValXaxis + xStart;
-      float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
-      float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
-      //float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
-      //print(city.getHumidity()+"\n");
-      fill(#0080ff);
-      ellipse(xVal, yValHum, 1, 2);
+      }
       
-      fill(#ffff00);
-      ellipse(xVal, yValTemp, 1, 2);
-      
-      //fill(#00ff40);
-      //ellipse(xVal, yValPres, 1, 2);
+      if(xVal > 0){
+        float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
+        float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
+        //float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
+        fill(#0080ff);
+        ellipse(xVal, yValHum, 1, 2);
+        
+        fill(#ffff00);
+        ellipse(xVal, yValTemp, 1, 2);
+        
+        //fill(#00ff40);
+        //ellipse(xVal, yValPres, 1, 2);
+      }
     }
     
   }
 }
 
-void addYaxisLabels(){
-  fill(0);
-  textAlign(CENTER);
-  for (int year: cityData.getYearList()){
-    String recordDate;
-    float xVal = 0 + xStart;
-    if (year > 2012){
-      recordDate = year + "-01-01 00:00:00";
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-      Date convertedRecordDate = new Date(); 
-      try {
-        convertedRecordDate= sdf.parse(recordDate);
-      } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      xVal = (convertedRecordDate.getTime() - cityData.getMinDate().getTime())/numValXaxis 
-                   + xStart;
-    }
-      //print(year + " | " + xVal + "\n");
-      text(year, xVal, yEnd+15);
-      stroke(126);
-      line(xVal, yStart, xVal, yEnd);
-  }
+void drawCitySelectionBoxes(){
+  textAlign(LEFT);
+  cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
+  cityCheckbox.setValues(cityList);
+  cityCheckbox.setName("Select City");
+  cityCheckbox.setSelected(selectedCity);
+  cityCheckbox.drawSelectBox();
 }
 
-void addXAxisLabels(){
+void addXaxisLabels(){
+  fill(0);
+  textAlign(CENTER);
+  if (selectedYear == 0){
+    for (int year: cityData.getYearList()){
+      String recordDate;
+      float xVal = 0 + xStart;
+      if (year > 2012){
+        recordDate = year + "-01-01 00:00:00";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        Date convertedRecordDate = new Date(); 
+        try {
+          convertedRecordDate= sdf.parse(recordDate);
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        xVal = (convertedRecordDate.getTime() - cityData.getMinDate().getTime())/numValXaxis 
+                     + xStart;
+      }
+        yearToPixelMapping.put((int)year, (int)xVal);
+        text(year, xVal, yEnd+15);
+        stroke(126);
+        line(xVal, yStart, xVal, yEnd);
+    }
+  } else {
+    List<String> months = new ArrayList<String>();
+    Collections.addAll(months, "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+    float monthlyWidth = (xEnd - xStart)/12;
+    float xVal = xStart;
+    for(String month: months){
+        text(month, xVal, yEnd+15);
+        stroke(126);
+        line(xVal, yStart, xVal, yEnd);
+        xVal = xVal + monthlyWidth;
+    }
+  }
+  stroke(126);
+}
+
+void addYAxisLabels(){
   fill(0);
   for(float i = yEnd, humVal = cityData.getHumMin(), tempVal = cityData.getTempMin(); 
             i >= yStart; 
@@ -179,7 +170,7 @@ void addXAxisLabels(){
 }
 
 void mousePressed(){
-    //print(mouseX + " | " + mouseY + "\n");
+    //city selection
     if (mouseX > cityCheckbox.getxStart()+5 &&  mouseX < cityCheckbox.getxStart()+15
         && mouseY > cityCheckbox.getyStart()+15 ){
           int probableSelection = (int)(mouseY - (cityCheckbox.getyStart()+15)) / 15;
@@ -187,5 +178,23 @@ void mousePressed(){
           if (inCheckBox <= 10 && probableSelection < cityList.size()){
             selectedCity = cityList.get(probableSelection);
           }
+    }
+    
+    //year selection
+    if(mouseX >= xStart && mouseX <= xEnd && mouseY >= yStart && mouseY <= yEnd){
+      if(selectedYear != 0){
+        selectedYear = 0;
+      } else {
+        selectedYear = 1;
+        int yearMax = 2012;
+        for(Object key : yearToPixelMapping.keySet().toArray()){
+          int year = (int)key;
+          int limitVal = yearToPixelMapping.get(year);
+          if(mouseX > limitVal && yearMax < year){
+              yearMax = year;
+          }
+        }
+        selectedYear = yearMax;
+      }
     }
   }
