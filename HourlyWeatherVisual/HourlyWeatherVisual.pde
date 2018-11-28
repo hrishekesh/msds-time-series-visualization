@@ -16,8 +16,8 @@ Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
 int selectedYear = 0;
 
 void setup(){
+  text("Loading. Please wait . . . ", 500, 500);
   size(1000, 600);
-  text("Loading. Please wait . . . ", width/2, height/2);
   cityData = new Weather();
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
@@ -54,9 +54,12 @@ void draw(){
   text("Hourly weather data for United States", xStart + 200 , yStart - 40);
   
   textSize(10);
-  //hs.drawScrollBar();
+  if(selectedYear != 0){
+    hs.drawScrollBar();
+  }
   
   addYAxisLabels();
+  addZoomInHighlight();
   
   
 }
@@ -195,6 +198,30 @@ void mousePressed(){
           }
         }
         selectedYear = yearMax;
+      }
+    }
+  }
+  
+  void addZoomInHighlight(){
+    if(mouseX >= xStart && mouseX <= xEnd && mouseY >= yStart && mouseY <= yEnd){
+        if(selectedYear == 0){
+        int yearMax = 2012;
+          for(Object key : yearToPixelMapping.keySet().toArray()){
+            int year = (int)key;
+            int limitVal = yearToPixelMapping.get(year);
+            if(mouseX > limitVal && yearMax < year){
+                yearMax = year;
+            }
+          }
+        int highlightStart = yearToPixelMapping.get(yearMax);
+        int highlightEnd = (yearMax<2017)?yearToPixelMapping.get(yearMax +1): (int)xEnd;
+        fill(#FBEEE6, 125);
+        rect(highlightStart, yStart, highlightEnd, yEnd);
+        fill(0);
+        text("Click to zoom for "+ yearMax, mouseX, mouseY+20);
+       } else {
+        fill(0);
+        text("Click to zoom out", mouseX, mouseY+20);
       }
     }
   }
