@@ -18,6 +18,11 @@ int selectedYear = 0;
 float key00x, key00w, key01y, key01h, key02y, key02h, key03y, key03h; 
 boolean button = true;
 color c1, c2;
+String selectedTitle = "Hourly Weather Data for the United States";
+String y1axisTitle = "Humidity";
+String y2axisTitle = "Temperature";
+//String y3axisTitle = "Pressure";
+//String y4axisTitle = "Wind Speed";
 
 void setup(){
   text("Loading. Please wait . . . ", 500, 500);
@@ -73,7 +78,7 @@ void draw(){
   
   //title
   textSize(26);
-  text("Hourly weather data for United States", xStart + 200 , yStart - 40);
+  text(selectedTitle, xStart + 200 , yStart - 40);
   
   textSize(10);
   if(selectedYear != 0){
@@ -141,27 +146,27 @@ void drawLegend(){
   text("Legend",key00x + 5, key02y + 10);
   
   fill(0);
-  text("Humidity",key00x + 15, key02y + 25);
+  text(y1axisTitle,key00x + 15, key02y + 25);
   fill(c1);
   ellipse(key00x + 10, key02y + 20, 4, 4);
   
   fill(0);
-  text("Temperature",key00x + 15, key02y + 45);
+  text(y2axisTitle,key00x + 15, key02y + 45);
   fill(c2);
   ellipse(key00x + 10, key02y + 40, 4, 4);
 }
 
 void drawGridlineToggle(){
   fill(255);
-  rect(key00x, key03y, key00w, key03h);
+  rect(key00x, key03y, key00w, key03h, 7);
   fill(0);
   text("Gridlines: ",key00x + 5, key03y + 15);
   if(button){
-    text("On",key00x + 70, key03y + 15);
+    text("On",key00x + 65, key03y + 15);
     println(key03y);
     println(key03h/2);
   } else {
-    text("Off",key00x + 70, key03y + 15);
+    text("Off",key00x + 65, key03y + 15);
   }
 }
 
@@ -227,8 +232,8 @@ void addYAxisLabels(){
               text((int)tempVal, xEnd + 2, i+3);
   }
   textAlign(CENTER);
-  text("Humidity", xStart, yStart-10);
-  text("Temperature", xEnd, yStart-10);
+  text(y1axisTitle, xStart, yStart-10);
+  text(y2axisTitle, xEnd, yStart-10);
   
 }
 
@@ -263,6 +268,8 @@ void mousePressed(){
     
     //axis label toggle
     if (mouseX > key00x && mouseX < key00x+key00w && mouseY > key03y && mouseY < key03y+key03h) {
+      textAlign(CENTER, BOTTOM);
+      text("Click to toggle gridlines on/off", key00x, key03y + 30);
       button = !button;
     }
   }
