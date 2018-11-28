@@ -157,17 +157,31 @@ void drawLegend(){
 }
 
 void drawGridlineToggle(){
-  fill(255);
+  fill(0,255,0);
   rect(key00x, key03y, key00w, key03h, 7);
   fill(0);
   text("Gridlines: ",key00x + 5, key03y + 15);
   if(button){
+    //fill(0,255,0);
     text("On",key00x + 65, key03y + 15);
-    println(key03y);
-    println(key03h/2);
   } else {
+    //fill(200);
     text("Off",key00x + 65, key03y + 15);
   }
+  
+  //if(button){  
+  //  fill(0,255,0);
+  //  rect(key00x, key03y, key00w, key03h, 7);
+  //  fill(0);
+  //  textAlign(CENTER, CENTER);
+  //  text("Gridlines On",(key00x + key00w)/2, (key03y + key03h)/2);
+  //} else {
+  //  fill(200);
+  //  rect(key00x, key03y, key00w, key03h, 7);
+  //  fill(0);
+  //  textAlign(CENTER, CENTER);
+  //  text("Gridlines Off",(key00x + key00w)/2, (key03y + key03h)/2);
+  //}
 }
 
 void addXaxisLabels(){
@@ -267,9 +281,11 @@ void mousePressed(){
     }
     
     //axis label toggle
-    if (mouseX > key00x && mouseX < key00x+key00w && mouseY > key03y && mouseY < key03y+key03h) {
-      textAlign(CENTER, BOTTOM);
-      text("Click to toggle gridlines on/off", key00x, key03y + 30);
+    if (mouseX >= key00x && mouseX <= key00x+key00w && mouseY >= key03y && mouseY <= key03y+key03h) {
+      fill(0);
+      //textSize(8);
+      textAlign(CENTER);
+      text("Click to toggle gridlines on/off",(key00x + key00w)/2, key03y + 30);
       button = !button;
     }
   }
