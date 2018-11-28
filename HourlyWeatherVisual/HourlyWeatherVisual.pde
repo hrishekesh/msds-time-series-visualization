@@ -14,10 +14,16 @@ Map<String, City> data;
 HScrollbar hs;
 Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
 int selectedYear = 0;
+//int key00x = xEnd + 30, key02y = yStart + 430, key00w = xEnd + 135, key02h = yStart + 420;
+float key00x, key00w, key01y, key01h, key02y, key02h, key03y, key03h; 
+boolean button = true;
+color c1, c2;
 
 void setup(){
   text("Loading. Please wait . . . ", 500, 500);
   size(1000, 600);
+  c1 = color(#0080ff); // blue
+  c2 = color(#FF0000); // red
   cityData = new Weather();
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
@@ -28,6 +34,20 @@ void setup(){
                       - cityData.getPressMin());
   yEnd = height - bottomMargin;
   xEnd = xWidth + xStart;
+  
+  // Set default x-position and width of plot keys
+  key00x = xEnd + 30;
+  key00w = xEnd + 135;
+  
+  // Set unique y-positions and heights of plot keys
+  key01y = yStart;
+  key01h = yStart + 420;
+  
+  key02y = key01h + 10;
+  key02h = key02y + 50;
+  
+  key03y = key02h + 10;
+  key03h = key03y + 20;
   
   smooth();
   
@@ -48,6 +68,8 @@ void draw(){
   drawDataPoints();
   addXaxisLabels();
   drawCitySelectionBoxes();
+  drawLegend();
+  drawGridlineToggle();
   
   //title
   textSize(26);
@@ -88,11 +110,11 @@ void drawDataPoints(){
         float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
         float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
         //float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
-        fill(#0080ff);
-        ellipse(xVal, yValHum, 1, 2);
+        fill(c1);
+        ellipse(xVal, yValHum, 2, 2);
         
-        fill(#ffff00);
-        ellipse(xVal, yValTemp, 1, 2);
+        fill(c2);
+        ellipse(xVal, yValTemp, 2, 2);
         
         //fill(#00ff40);
         //ellipse(xVal, yValPres, 1, 2);
@@ -104,11 +126,43 @@ void drawDataPoints(){
 
 void drawCitySelectionBoxes(){
   textAlign(LEFT);
-  cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
+  //cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
+  cityCheckbox.setContainer(key00x, key01y, key00w, key01h);
   cityCheckbox.setValues(cityList);
   cityCheckbox.setName("Select City");
   cityCheckbox.setSelected(selectedCity);
   cityCheckbox.drawSelectBox();
+}
+
+void drawLegend(){
+  fill(255);
+  rect(key00x, key02y, key00w, key02h);
+  fill(0);
+  text("Legend",key00x + 5, key02y + 10);
+  
+  fill(0);
+  text("Humidity",key00x + 15, key02y + 25);
+  fill(c1);
+  ellipse(key00x + 10, key02y + 20, 4, 4);
+  
+  fill(0);
+  text("Temperature",key00x + 15, key02y + 45);
+  fill(c2);
+  ellipse(key00x + 10, key02y + 40, 4, 4);
+}
+
+void drawGridlineToggle(){
+  fill(255);
+  rect(key00x, key03y, key00w, key03h);
+  fill(0);
+  text("Gridlines: ",key00x + 5, key03y + 15);
+  if(button){
+    text("On",key00x + 70, key03y + 15);
+    println(key03y);
+    println(key03h/2);
+  } else {
+    text("Off",key00x + 70, key03y + 15);
+  }
 }
 
 void addXaxisLabels(){
@@ -134,7 +188,9 @@ void addXaxisLabels(){
         yearToPixelMapping.put((int)year, (int)xVal);
         text(year, xVal, yEnd+15);
         stroke(126);
-        line(xVal, yStart, xVal, yEnd);
+        if (button){
+          line(xVal, yStart, xVal, yEnd);
+        }
     }
   } else {
     List<String> months = new ArrayList<String>();
@@ -145,7 +201,9 @@ void addXaxisLabels(){
     for(String month: months){
         text(month, xVal, yEnd+15);
         stroke(126);
-        line(xVal, yStart, xVal, yEnd);
+        if(button){
+          line(xVal, yStart, xVal, yEnd);
+        }
         xVal = xVal + monthlyWidth;
     }
   }
@@ -162,7 +220,9 @@ void addYAxisLabels(){
               textAlign(RIGHT);
               text((int)humVal, xStart - 2, i+3);
               stroke(126);
-              line(xStart, i, xEnd, i);
+              if (button){
+                line(xStart, i, xEnd, i);
+              }
               textAlign(LEFT);
               text((int)tempVal, xEnd + 2, i+3);
   }
@@ -199,6 +259,11 @@ void mousePressed(){
         }
         selectedYear = yearMax;
       }
+    }
+    
+    //axis label toggle
+    if (mouseX > key00x && mouseX < key00x+key00w && mouseY > key03y && mouseY < key03y+key03h) {
+      button = !button;
     }
   }
   
