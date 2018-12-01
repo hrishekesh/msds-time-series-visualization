@@ -169,18 +169,51 @@ void drawDataPoints(){
             
             fill(c2);
             ellipse(xVal, yValTemp, 2, 2);
+            
+            //create rollover for humidity tab
+            if (dist(mouseX, mouseY, xVal, yValHum) < 3) {
+                point(yValHum,yValTemp);
+                fill(0);
+                textSize(10);
+                textAlign(CENTER);
+                rect(xVal+25, yValHum-18, xVal-20, yValHum-4);
+                fill(255);
+                text(nf(city.getHumidity(), 0, 2), xVal, yValHum -8);
+                }
             break;
             
           case "Pressure":
             float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
             fill(c3);
             ellipse(xVal, yValPres, 2, 2);
+            
+            //create rollover for pressure tab
+            if (dist(mouseX, mouseY, xVal, yValPres) < 3) {
+                point(xVal,yValPres);
+                fill(0);
+                textSize(10);
+                textAlign(CENTER);
+                rect(xVal+25, yValPres-18, xVal-20, yValPres-4);
+                fill(255);
+                text(nf(city.getPressure(), 0, 2), xVal, yValPres -8);
+                }
             break;
             
           case "Wind Speed":
             float yValSpeed = yEnd - (city.getWindSpeed() * pixelSpacingYWindSpeed);
             fill(c4);
             ellipse(xVal, yValSpeed, 2, 2);
+            
+            //create rollover for wind speed tab
+            if (dist(mouseX, mouseY, xVal, yValSpeed) < 3) {
+                point(xVal,yValSpeed);
+                fill(0);
+                textSize(10);
+                textAlign(CENTER);
+                rect(xVal+25, yValSpeed-18, xVal-20, yValSpeed-4);
+                fill(255);
+                text(nf(city.getWindSpeed(), 0, 2), xVal, yValSpeed -8);
+                }
             break;
          }
       }
