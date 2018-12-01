@@ -158,8 +158,6 @@ class Weather{
     String[] humidity = loadStrings("humidity.csv");
     String[] pressure = loadStrings("pressure.csv");
     String[] temperature = loadStrings("temperature.csv");
-    String[] weatherDesc = loadStrings("weather_description.csv");
-    String[] windDirection = loadStrings("wind_direction.csv");
     String[] windSpeed = loadStrings("wind_speed.csv");
     
     //All sheets have same number of rows and columns in the dataset
@@ -169,7 +167,6 @@ class Weather{
       List<String> humidityRow = Arrays.asList(humidity[i].split(","));
       List<String> pressureRow = Arrays.asList(pressure[i].split(","));
       List<String> temperatureRow = Arrays.asList(temperature[i].split(","));
-      List<String> windDirectionRow = Arrays.asList(windDirection[i].split(","));
       List<String> windSpeedRow = Arrays.asList(windSpeed[i].split(","));
       
       for (int j=1; j < cityAttributes.length; j++){
@@ -186,8 +183,6 @@ class Weather{
                                                       ?Float.parseFloat(pressureRow.get(j)):0);
         city.setTemperature((j<temperatureRow.size() && temperatureRow.get(j) != null && !temperatureRow.get(j).isEmpty())
                                                       ?Float.parseFloat(temperatureRow.get(j)):0);
-        city.setWindDirection((j<windDirectionRow.size() && windDirectionRow.get(j) != null && !windDirectionRow.get(j).isEmpty())
-                                                      ?Float.parseFloat(windDirectionRow.get(j)):0);
         city.setWindSpeed((j<windSpeedRow.size() && windSpeedRow.get(j) != null && !windSpeedRow.get(j).isEmpty())
                                                       ?Float.parseFloat(windSpeedRow.get(j)):0);
         Date recDate = convertStringToDate(humidityRow.get(0));

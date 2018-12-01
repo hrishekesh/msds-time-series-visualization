@@ -7,7 +7,7 @@ Set<Integer> selectedYearList = new HashSet<Integer>();
 Set<String> selectedAttributeList = new HashSet<String>();
 String selectedCity = "New York";
 float xStart = 50, xEnd, yStart =75, yEnd, bottomMargin = 50;
-float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingYPress;
+float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingYPress, pixelSpacingYWindSpeed;
 float numValXaxis, xWidth = 800;
 CheckBox cityCheckbox;
 Map<String, City> data;
@@ -16,19 +16,25 @@ Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
 int selectedYear = 0;
 float key00x, key00w, key01y, key01h, key02y, key02h, key03y, key03h; 
 boolean button = true;
-color c1, c2;
+color c1, c2, c3, c4;
 String selectedTitle = "Hourly Weather Data for the United States";
 String y1axisTitle = "Humidity";
 String y2axisTitle = "Temperature";
-//String y3axisTitle = "Pressure";
-//String y4axisTitle = "Wind Speed";
+String y3axisTitle = "Pressure";
+String y4axisTitle = "Wind Speed";
 List<String> months = new ArrayList<String>();
 float scrollPercent = 0;
+String thTab = "Temperature and Humidity", pTab = "Pressure", wsTab = "Wind Speed", selectedTab = "None";
+int tabWidth = 150;
+WeatherTab thTabObj, pTabObj, wsTabObj;
+List<WeatherTab> tabs = new ArrayList<WeatherTab>();
 
 void setup(){
   size(1000, 600);
   c1 = color(#0080ff); // blue
   c2 = color(#FF0000); // red
+  //c3 = color();
+  //c4 = color();
   text("Loading. Please wait . . . ", 500, 500);
   cityData = new Weather();
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
@@ -38,6 +44,8 @@ void setup(){
                       - cityData.getTempMin());
   pixelSpacingYPress = (height - yStart - bottomMargin)  / (cityData.getPressMax() 
                       - cityData.getPressMin());
+  pixelSpacingYWindSpeed = (height - yStart - bottomMargin)  / (cityData.getSpeedMax() 
+                      - cityData.getSpeedMin());
   yEnd = height - bottomMargin;
   xEnd = xWidth + xStart;
   
@@ -65,6 +73,13 @@ void setup(){
   hs = new HScrollbar(xStart, yEnd +20, xEnd);
   Collections.addAll(months, "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+                  
+  thTabObj = new WeatherTab(thTab, xStart, yStart-25, xStart + tabWidth, yStart, 0);
+  pTabObj = new WeatherTab(pTab, xStart + tabWidth, yStart-25, xStart + tabWidth*2, yStart, 1);
+  wsTabObj = new WeatherTab(wsTab, xStart + tabWidth *2, yStart-25, xStart + tabWidth*3, yStart, 2);
+  tabs.add(thTabObj);
+  tabs.add(pTabObj);
+  tabs.add(wsTabObj);
 }
 
 void draw(){
@@ -95,6 +110,7 @@ void draw(){
   
   addYAxisLabels();
   addZoomInHighlight();
+  drawTabs();
 }
 
 void drawDataPoints(){
@@ -120,14 +136,29 @@ void drawDataPoints(){
       }
       
       if(xVal >= 50 && xVal <= xEnd){
-        float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
-        float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
-        //float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
-        fill(c1);
-        ellipse(xVal, yValHum, 2, 2);
-        
-        fill(c2);
-        ellipse(xVal, yValTemp, 2, 2);
+        switch (selectedTab) {
+          case "Temperature and Humidity":
+            float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
+            float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
+            fill(c1);
+            ellipse(xVal, yValHum, 2, 2);
+            
+            fill(c2);
+            ellipse(xVal, yValTemp, 2, 2);
+            break;
+            
+          case "Pressure":
+            float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
+            fill(c1);
+            ellipse(xVal, yValPres, 2, 2);
+            break;
+            
+          case "Wind Speed":
+            float yValSpeed = yEnd - (city.getWindSpeed() * pixelSpacingYWindSpeed);
+            fill(c1);
+            ellipse(xVal, yValSpeed, 2, 2);
+            break;
+         }
       }
     }
     
@@ -149,30 +180,57 @@ void drawLegend(){
   rect(key00x, key02y, key00w, key02h);
   fill(0);
   text("Legend",key00x + 5, key02y + 10);
-  
-  fill(0);
-  text(y1axisTitle,key00x + 15, key02y + 25);
-  fill(c1);
-  ellipse(key00x + 10, key02y + 20, 4, 4);
-  
-  fill(0);
-  text(y2axisTitle,key00x + 15, key02y + 45);
-  fill(c2);
-  ellipse(key00x + 10, key02y + 40, 4, 4);
+  switch (selectedTab) {
+          case "Temperature and Humidity":
+            fill(0);
+            text(y1axisTitle, key00x + 15, key02y + 25);
+            fill(c1);
+            ellipse(key00x + 10, key02y + 20, 4, 4);
+            
+            fill(0);
+            text(y2axisTitle,key00x + 15, key02y + 45);
+            fill(c2);
+            ellipse(key00x + 10, key02y + 40, 4, 4);
+            break;
+            
+          case "Pressure":
+            fill(0);
+            text(y3axisTitle, key00x + 15, key02y + 25);
+            fill(c1);
+            ellipse(key00x + 10, key02y + 20, 4, 4);
+            break;
+            
+          case "Wind Speed":
+            fill(0);
+            text(y4axisTitle, key00x + 15, key02y + 25);
+            fill(c1);
+            ellipse(key00x + 10, key02y + 20, 4, 4);
+            break;
+         }
 }
 
 void drawGridlineToggle(){
-  fill(0,255,0);
-  rect(key00x, key03y, key00w, key03h, 7);
   fill(0);
-  text("Gridlines: ",key00x + 5, key03y + 15);
   if(button){
-    //fill(0,255,0);
+    fill(0,255,0);
+    rect(key00x, key03y, key00w, key03h, 7);
+    fill(0);
     text("On",key00x + 65, key03y + 15);
   } else {
-    //fill(200);
+    fill(200);
+    rect(key00x, key03y, key00w, key03h, 7);
+    fill(0);
     text("Off",key00x + 65, key03y + 15);
   }
+  text("Gridlines: ",key00x + 5, key03y + 15);
+  
+  //axis label toggle
+    if (mouseX >= key00x && mouseX <= key00x+key00w && mouseY >= key03y && mouseY <= key03y+key03h) {
+      fill(0);
+      textAlign(CENTER);
+      text("Click to toggle",(key00x + key00w)/2, key03y + 30);
+      textAlign(LEFT);
+    }
 }
 
 void addXaxisLabels(){
@@ -221,7 +279,9 @@ void addXaxisLabels(){
 
 void addYAxisLabels(){
   fill(0);
-  for(float i = yEnd, humVal = cityData.getHumMin(), tempVal = cityData.getTempMin(); 
+  switch (selectedTab) {
+          case "Temperature and Humidity":
+            for(float i = yEnd, humVal = cityData.getHumMin(), tempVal = cityData.getTempMin(); 
             i >= yStart; 
             i = i - ((yEnd - yStart)/10), 
             humVal = humVal + ((cityData.getHumMax()- cityData.getHumMin())/10),
@@ -234,11 +294,46 @@ void addYAxisLabels(){
               }
               textAlign(LEFT);
               text((int)tempVal, xEnd + 2, i+3);
-  }
-  textAlign(CENTER);
-  text(y1axisTitle, xStart, yStart-10);
-  text(y2axisTitle, xEnd, yStart-10);
-  
+            }
+            textAlign(RIGHT);
+            text(y1axisTitle, xStart-5, yStart-10);
+            textAlign(LEFT);
+            text(y2axisTitle, xEnd, yStart-10);
+            break;
+            
+          case "Pressure":
+            for(float i = yEnd, presVal = cityData.getPressMin(); 
+            i >= yStart; 
+            i = i - ((yEnd - yStart)/10), 
+            presVal = presVal + ((cityData.getPressMax()- cityData.getPressMin())/10)){
+              textAlign(RIGHT);
+              text((int)presVal, xStart - 2, i+3);
+              stroke(126);
+              if (button){
+                line(xStart, i, xEnd, i);
+              }
+            }
+            textAlign(RIGHT);
+            text(y3axisTitle, xStart-5, yStart-10);
+            break;
+            
+          case "Wind Speed":
+            for(float i = yEnd, speedVal = cityData.getSpeedMin(); 
+            i >= yStart; 
+            i = i - ((yEnd - yStart)/10), 
+            speedVal = speedVal + ((cityData.getSpeedMax()- cityData.getSpeedMin())/10)){
+              textAlign(RIGHT);
+              text((int)speedVal, xStart - 2, i+3);
+              stroke(126);
+              if (button){
+                line(xStart, i, xEnd, i);
+              }
+            }
+            textAlign(RIGHT);
+            text("Wind", xStart-5, yStart-20);
+            text("Speed", xStart-5, yStart-10);
+            break;
+         }
 }
 
 void mousePressed(){
@@ -270,13 +365,16 @@ void mousePressed(){
       }
     }
     
-    //axis label toggle
     if (mouseX >= key00x && mouseX <= key00x+key00w && mouseY >= key03y && mouseY <= key03y+key03h) {
-      fill(0);
-      //textSize(8);
-      textAlign(CENTER);
-      text("Click to toggle gridlines on/off",(key00x + key00w)/2, key03y + 30);
       button = !button;
+    }
+    
+    //tab Selection
+    for(WeatherTab tab: tabs){
+      if(mouseX >= tab.getxStart() && mouseX <= tab.getxEnd() 
+      && mouseY >= tab.getyStart() && mouseY <= tab.getyEnd() ){
+        selectedTab = tab.getName();
+      }
     }
   }
   
@@ -310,4 +408,14 @@ void mousePressed(){
         && mouseY <= hs.yEnd && selectedYear > 0){
        hs.scroll(mouseX);
      }
+  }
+  
+  void drawTabs(){
+    if(selectedTab.equals("None")){
+      selectedTab = thTab;
+    }
+    textAlign(CENTER);
+    thTabObj.fillTab();
+    pTabObj.fillTab();
+    wsTabObj.fillTab();
   }
