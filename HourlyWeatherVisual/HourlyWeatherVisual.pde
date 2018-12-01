@@ -23,12 +23,14 @@ String y1axisTitle = "Humidity";
 String y2axisTitle = "Temperature";
 //String y3axisTitle = "Pressure";
 //String y4axisTitle = "Wind Speed";
+List<String> months = new ArrayList<String>();
+float scrollPercent = 0;
 
 void setup(){
-  text("Loading. Please wait . . . ", 500, 500);
-  size(1000, 600);
+  size(2000, 600);
   c1 = color(#0080ff); // blue
   c2 = color(#FF0000); // red
+  text("Loading. Please wait . . . ", 500, 500);
   cityData = new Weather();
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
@@ -62,14 +64,21 @@ void setup(){
   cityCheckbox= new CheckBox();
   
   hs = new HScrollbar(xStart, yEnd +20, xEnd);
+  Collections.addAll(months, "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 }
 
 void draw(){
-  background(224);
+  background(255);
   fill(255);
   rectMode(CORNERS);
-  noStroke( );
+  noStroke();
   rect(xStart, yStart, xEnd, yEnd);
+  stroke(0);
+  line(xStart, yStart, xStart, yEnd);
+  line(xStart, yEnd, xEnd, yEnd);
+  line(xEnd, yStart, xEnd, yEnd);
+  noStroke();
   drawDataPoints();
   addXaxisLabels();
   drawCitySelectionBoxes();
@@ -87,31 +96,31 @@ void draw(){
   
   addYAxisLabels();
   addZoomInHighlight();
-  
-  
 }
 
 void drawDataPoints(){
+  float xVal = 0;
   for(String key : data.keySet()){
     City city = data.get(key);
     if(selectedCity.equals(city.getName())){
-      float xVal = 0;
+      xVal = 0;
       if (selectedYear != 0){
         String endDate = selectedYear + "-12-31 23:00:00";
-        String startDate = selectedYear + "-01-01 00:00:00";
-        float denom = (cityData.convertStringToDate(endDate).getTime() 
-                      - cityData.convertStringToDate(startDate).getTime())/xWidth;
+         String startDate = selectedYear + "-01-01 00:00:00";
+         float denom = (cityData.convertStringToDate(endDate).getTime() 
+                      - cityData.convertStringToDate(startDate).getTime())/(xWidth*2);
         if(city.getRecordDate().getYear()+1900 == selectedYear){
           xVal = (city.getRecordDate().getTime() - 
-                cityData.convertStringToDate(startDate).getTime()) /denom + xStart;
+                cityData.convertStringToDate(startDate).getTime())/denom + xStart 
+                - (xWidth)*hs.scrollPercent;
         }
       }
       else{
         xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
-                    /numValXaxis + xStart;
+                    /numValXaxis + xStart;        
       }
       
-      if(xVal > 0){
+      if(xVal >= 50 && xVal <= xEnd){
         float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
         float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
         //float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
@@ -134,7 +143,7 @@ void drawCitySelectionBoxes(){
   //cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
   cityCheckbox.setContainer(key00x, key01y, key00w, key01h);
   cityCheckbox.setValues(cityList);
-  cityCheckbox.setName("Select City");
+  cityCheckbox.setName("Select a city");
   cityCheckbox.setSelected(selectedCity);
   cityCheckbox.drawSelectBox();
 }
@@ -168,20 +177,6 @@ void drawGridlineToggle(){
     //fill(200);
     text("Off",key00x + 65, key03y + 15);
   }
-  
-  //if(button){  
-  //  fill(0,255,0);
-  //  rect(key00x, key03y, key00w, key03h, 7);
-  //  fill(0);
-  //  textAlign(CENTER, CENTER);
-  //  text("Gridlines On",(key00x + key00w)/2, (key03y + key03h)/2);
-  //} else {
-  //  fill(200);
-  //  rect(key00x, key03y, key00w, key03h, 7);
-  //  fill(0);
-  //  textAlign(CENTER, CENTER);
-  //  text("Gridlines Off",(key00x + key00w)/2, (key03y + key03h)/2);
-  //}
 }
 
 void addXaxisLabels(){
@@ -212,15 +207,12 @@ void addXaxisLabels(){
         }
     }
   } else {
-    List<String> months = new ArrayList<String>();
-    Collections.addAll(months, "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-    float monthlyWidth = (xEnd - xStart)/12;
-    float xVal = xStart;
+    float monthlyWidth = xWidth*2/12;
+    float xVal = xStart - (xWidth)*hs.scrollPercent;
     for(String month: months){
-        text(month, xVal, yEnd+15);
-        stroke(126);
-        if(button){
+        if(button && xVal <= xEnd && xVal >= 50){
+          text(month, xVal, yEnd+15);
+          stroke(126);
           line(xVal, yStart, xVal, yEnd);
         }
         xVal = xVal + monthlyWidth;
@@ -312,4 +304,12 @@ void mousePressed(){
         text("Click to zoom out", mouseX, mouseY+20);
       }
     }
+  }
+  
+  void mouseDragged(){
+    //scrolling
+    if(mouseX >= hs.xStart && mouseX <= hs.xEnd && mouseY >= hs.yStart 
+        && mouseY <= hs.yEnd && selectedYear > 0){
+       hs.scroll(mouseX);
+     }
   }

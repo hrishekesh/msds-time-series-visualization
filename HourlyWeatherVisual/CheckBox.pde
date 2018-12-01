@@ -74,6 +74,7 @@ class CheckBox{
   
   void drawSelectBox() {
     fill(255);
+    noStroke();
     rect(this.getxStart(), this.getyStart(), this.getxEnd(), this.getyEnd());
     fill(0);
     float boxXStart = xStart + 5;
@@ -88,6 +89,7 @@ class CheckBox{
       else{
         fill(255);
       }
+      stroke(126);
       rect(boxXStart, boxYStart, boxXStart+10, boxYStart+10);
       fill(0);
       text(city, boxXStart + 14, boxYStart +10);
