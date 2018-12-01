@@ -84,7 +84,7 @@ class CheckBox{
     for (String city: this.getValues()){
       boxYStart = boxYStart +15;
       if (city.equals(this.getSelected())){
-        fill(0);
+        fill(#5C3D46);
       }
       else{
         fill(255);

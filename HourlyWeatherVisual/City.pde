@@ -11,9 +11,7 @@ class City{
     private float humidity;
     private float pressure;
     private float temperature;
-    private float windDirection;
     private float windSpeed;
-    private float weatherDescription;
     
     float getHumidity() {
       return humidity;
@@ -33,23 +31,11 @@ class City{
     void setTemperature(float temperature) {
       this.temperature = temperature;
     }
-    float getWindDirection() {
-      return windDirection;
-    }
-    void setWindDirection(float windDirection) {
-      this.windDirection = windDirection;
-    }
     float getWindSpeed() {
       return windSpeed;
     }
     void setWindSpeed(float windSpeed) {
       this.windSpeed = windSpeed;
-    }
-    float getWeatherDescription() {
-      return weatherDescription;
-    }
-    void setWeatherDescription(float weatherDescription) {
-      this.weatherDescription = weatherDescription;
     }
   
   String getName() {

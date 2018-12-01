@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 class Weather{
+  // map to maintain all attributes against time
   private Map<String, City> timeSeriesData = new HashMap<String, City>();
   
   private float tempMax = 0.0;
@@ -16,17 +17,16 @@ class Weather{
   private float humMin = 0.0;
   private float pressMax = 0.0;
   private float pressMin = 0.0;
-  private float directionMax = 0.0;
-  private float directionMin = 0.0;
   private float speedMax = 0.0;
   private float speedMin = 0.0;
   private Date minDate;
   private Date maxDate;
+  //start date
   private String defaultDate = "2012-10-01 12:00:00";
+  // unique cities in data
   Set<String> cityList = new HashSet<String>();
-  Set<String> countryList = new HashSet<String>();
+  // unique years in data
   Set<Integer> yearList = new HashSet<Integer>();
-  Set<String> attributeList = new HashSet<String>();
 
   public Set<String> getCityList() {
     return cityList;
@@ -35,23 +35,11 @@ class Weather{
     this.cityList = cityList;
   }
   
-  public Set<String> getCountryList() {
-    return countryList;
-  }
-  public void setCountryList(Set<String> countryList) {
-    this.countryList = countryList;
-  }
   public Set<Integer> getYearList() {
     return yearList;
   }
   public void setYearList(Set<Integer> yearList) {
     this.yearList = yearList;
-  }
-  public Set<String> getAttributeList() {
-    return attributeList;
-  }
-  public void setAttributeList(Set<String> attributeList) {
-    this.attributeList = attributeList;
   }
   
   public Date getMinDate() {
@@ -104,18 +92,6 @@ class Weather{
   void setPressMin(float pressMin) {
     this.pressMin = pressMin;
   }
-  float getDirectionMax() {
-    return directionMax;
-  }
-  void setDirectionMax(float directionMax) {
-    this.directionMax = directionMax;
-  }
-  float getDirectionMin() {
-    return directionMin;
-  }
-  void setDirectionMin(float directionMin) {
-    this.directionMin = directionMin;
-  }
   float getSpeedMax() {
     return speedMax;
   }
@@ -152,8 +128,6 @@ class Weather{
   Weather(){
     setMinDate(convertStringToDate(defaultDate));
     setMaxDate(convertStringToDate(defaultDate));
-    attributeList.addAll(Arrays.asList(new String[] {"Humidity", 
-      "Pressure", "Temperature", "Wind Direction", "Wind Speed"}));
     String[] cityAttributes = loadStrings("city_attributes.csv");
     String[] humidity = loadStrings("humidity.csv");
     String[] pressure = loadStrings("pressure.csv");
@@ -171,6 +145,7 @@ class Weather{
       
       for (int j=1; j < cityAttributes.length; j++){
         List<String> row = Arrays.asList(cityAttributes[j].split(","));
+        // filter data only for US
         if(row.get(1).equals("United States")){
           City city = new City();
         city.setName(row.get(0));
@@ -186,11 +161,11 @@ class Weather{
         city.setWindSpeed((j<windSpeedRow.size() && windSpeedRow.get(j) != null && !windSpeedRow.get(j).isEmpty())
                                                       ?Float.parseFloat(windSpeedRow.get(j)):0);
         Date recDate = convertStringToDate(humidityRow.get(0));
-        city.setRecordDate(recDate);                                            
+        city.setRecordDate(recDate);
+        // ensure we have a unique key for all record sets.
         String mapKey = city.getRecordDate() + " | " + city.getName();
         
         cityList.add(city.getName());
-        countryList.add(city.getCountry());
         yearList.add(Integer.parseInt(yearFormat.format(recDate)));
         
         timeSeriesData.put(mapKey, city);
@@ -205,14 +180,12 @@ class Weather{
         humMax = (city.getHumidity() > humMax)?city.getHumidity():humMax;
         pressMax = (city.getPressure() > pressMax)?city.getPressure():pressMax;
         tempMax = (city.getTemperature() > tempMax)?city.getTemperature():tempMax;
-        directionMax = (city.getWindDirection() > directionMax)?city.getWindDirection():directionMax;
         speedMax = (city.getWindSpeed() > speedMax)?city.getWindSpeed():speedMax;
         
         
         humMin = (city.getHumidity() < humMin)?city.getHumidity():humMin;
         pressMin = (city.getPressure() < pressMin)?city.getPressure():pressMin;
         tempMin = (city.getTemperature() < tempMin)?city.getTemperature():tempMin;
-        directionMin = (city.getWindDirection() < directionMin)?city.getWindDirection():directionMin;
         speedMin = (city.getWindSpeed() < speedMin)?city.getWindSpeed():speedMin;
         }
       }

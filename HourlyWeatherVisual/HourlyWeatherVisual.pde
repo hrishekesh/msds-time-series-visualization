@@ -1,43 +1,58 @@
 import java.util.Collections;
-
+//POJO for data and also has minimum and mximum values
 Weather cityData;
-// filter variables
 List<String> cityList;
-Set<Integer> selectedYearList = new HashSet<Integer>();
-Set<String> selectedAttributeList = new HashSet<String>();
 String selectedCity = "New York";
+// parameters for initial setup
 float xStart = 50, xEnd, yStart =75, yEnd, bottomMargin = 50;
+// variables to calculate scale for each attribute
 float pixelSpacingYHum, pixelSpacingYTemp, pixelSpacingYPress, pixelSpacingYWindSpeed;
 float numValXaxis, xWidth = 800;
+// POJO for checkboxes to select and show data for a city
 CheckBox cityCheckbox;
+// map for data per city
 Map<String, City> data;
+// POJO for scrollbar
 HScrollbar hs;
+// mapping to capture which area of the visual is clicked and map it to year
 Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
+// variable for functionality of year selection
 int selectedYear = 0;
+// keys to locate different aspects of visuals 
 float key00x, key00w, key01y, key01h, key02y, key02h, key03y, key03h; 
+// variable to detect whether grid lines are on / off
 boolean button = true;
+// colors for attributes
 color c1, c2, c3, c4;
 String selectedTitle = "Hourly Weather Data for the United States";
-String y1axisTitle = "Humidity";
-String y2axisTitle = "Temperature";
-String y3axisTitle = "Pressure";
-String y4axisTitle = "Wind Speed";
+// Y axis labels for different attributes
+String y1axisTitle = "Humidity", 
+        y2axisTitle = "Temperature", 
+        y3axisTitle = "Pressure", 
+        y4axisTitle = "Wind Speed";
+// List to display data in months
 List<String> months = new ArrayList<String>();
+// variable to calculate percentage of scrolling by user
 float scrollPercent = 0;
+//tab names
 String thTab = "Temperature and Humidity", pTab = "Pressure", wsTab = "Wind Speed", selectedTab = "None";
 int tabWidth = 150;
+//tab objects
 WeatherTab thTabObj, pTabObj, wsTabObj;
+//list of tab objects
 List<WeatherTab> tabs = new ArrayList<WeatherTab>();
 
 void setup(){
+  text("Loading. Please wait . . . ", 400, 300);
   size(1000, 600);
-  c1 = color(#0080ff); // blue
-  c2 = color(#FF0000); // red
-  //c3 = color();
-  //c4 = color();
-  text("Loading. Please wait . . . ", 500, 500);
+  c1 = color(#0878A4);
+  c2 = color(#C05640);
+  c3 = color(#1ECFD6);
+  c4 = color(#003D73);
+  //read data and create POJO instances
   cityData = new Weather();
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
+  // scale values as per display size
   pixelSpacingYHum = (height - yStart - bottomMargin)  / (cityData.getHumMax()
                       - cityData.getHumMin());
   pixelSpacingYTemp = (height - yStart - bottomMargin)  / (cityData.getTempMax() 
@@ -66,14 +81,17 @@ void setup(){
   smooth();
   
   data = cityData.getTimeSeriesData();
-
+  // functionality to select a city
   cityList = new ArrayList<String>(cityData.getCityList());
   cityCheckbox= new CheckBox();
-  
+  // scrollbar functionality
   hs = new HScrollbar(xStart, yEnd +20, xEnd);
+  
+  // list to display month labels on zoom
   Collections.addAll(months, "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-                  
+  
+  // objects for tab data
   thTabObj = new WeatherTab(thTab, xStart, yStart-25, xStart + tabWidth, yStart, 0);
   pTabObj = new WeatherTab(pTab, xStart + tabWidth, yStart-25, xStart + tabWidth*2, yStart, 1);
   wsTabObj = new WeatherTab(wsTab, xStart + tabWidth *2, yStart-25, xStart + tabWidth*3, yStart, 2);
@@ -87,8 +105,10 @@ void draw(){
   fill(255);
   rectMode(CORNERS);
   noStroke();
+  // create canvas for data visual
   rect(xStart, yStart, xEnd, yEnd);
   stroke(0);
+  // display axis lines
   line(xStart, yStart, xStart, yEnd);
   line(xStart, yEnd, xEnd, yEnd);
   line(xEnd, yStart, xEnd, yEnd);
@@ -117,8 +137,10 @@ void drawDataPoints(){
   float xVal = 0;
   for(String key : data.keySet()){
     City city = data.get(key);
+    // draw data only for selected city
     if(selectedCity.equals(city.getName())){
       xVal = 0;
+      // in case user zooms in on an year, display monthly data for selected year
       if (selectedYear != 0){
         String endDate = selectedYear + "-12-31 23:00:00";
          String startDate = selectedYear + "-01-01 00:00:00";
@@ -130,12 +152,14 @@ void drawDataPoints(){
                 - (xWidth)*hs.scrollPercent;
         }
       }
+      // if the user has not zoomed in, display yearly data
       else{
         xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
                     /numValXaxis + xStart;        
       }
       
       if(xVal >= 50 && xVal <= xEnd){
+        // display data for selected tab
         switch (selectedTab) {
           case "Temperature and Humidity":
             float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
@@ -149,13 +173,13 @@ void drawDataPoints(){
             
           case "Pressure":
             float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
-            fill(c1);
+            fill(c3);
             ellipse(xVal, yValPres, 2, 2);
             break;
             
           case "Wind Speed":
             float yValSpeed = yEnd - (city.getWindSpeed() * pixelSpacingYWindSpeed);
-            fill(c1);
+            fill(c4);
             ellipse(xVal, yValSpeed, 2, 2);
             break;
          }
@@ -165,9 +189,9 @@ void drawDataPoints(){
   }
 }
 
+// display checkbox per city
 void drawCitySelectionBoxes(){
   textAlign(LEFT);
-  //cityCheckbox.setContainer(xEnd + 30, yStart, xEnd + 10 + 125, yStart + 420);
   cityCheckbox.setContainer(key00x, key01y, key00w, key01h);
   cityCheckbox.setValues(cityList);
   cityCheckbox.setName("Select a city");
@@ -180,35 +204,37 @@ void drawLegend(){
   rect(key00x, key02y, key00w, key02h);
   fill(0);
   text("Legend",key00x + 5, key02y + 10);
+  //display legend based on tab selection
   switch (selectedTab) {
           case "Temperature and Humidity":
             fill(0);
             text(y1axisTitle, key00x + 15, key02y + 25);
             fill(c1);
-            ellipse(key00x + 10, key02y + 20, 4, 4);
+            ellipse(key00x + 10, key02y + 20, 8, 8);
             
             fill(0);
             text(y2axisTitle,key00x + 15, key02y + 45);
             fill(c2);
-            ellipse(key00x + 10, key02y + 40, 4, 4);
+            ellipse(key00x + 10, key02y + 40, 8, 8);
             break;
             
           case "Pressure":
             fill(0);
             text(y3axisTitle, key00x + 15, key02y + 25);
-            fill(c1);
-            ellipse(key00x + 10, key02y + 20, 4, 4);
+            fill(c3);
+            ellipse(key00x + 10, key02y + 20, 8, 8);
             break;
             
           case "Wind Speed":
             fill(0);
             text(y4axisTitle, key00x + 15, key02y + 25);
-            fill(c1);
-            ellipse(key00x + 10, key02y + 20, 4, 4);
+            fill(c4);
+            ellipse(key00x + 10, key02y + 20, 8, 8);
             break;
          }
 }
 
+// toggle grid lines
 void drawGridlineToggle(){
   fill(0);
   if(button){
@@ -224,7 +250,7 @@ void drawGridlineToggle(){
   }
   text("Gridlines: ",key00x + 5, key03y + 15);
   
-  //axis label toggle
+  // show text on mouse hover of button
     if (mouseX >= key00x && mouseX <= key00x+key00w && mouseY >= key03y && mouseY <= key03y+key03h) {
       fill(0);
       textAlign(CENTER);
@@ -236,6 +262,7 @@ void drawGridlineToggle(){
 void addXaxisLabels(){
   fill(0);
   textAlign(CENTER);
+  // display timeline for all years if a year is not zoomed in
   if (selectedYear == 0){
     for (int year: cityData.getYearList()){
       String recordDate;
@@ -260,6 +287,7 @@ void addXaxisLabels(){
           line(xVal, yStart, xVal, yEnd);
         }
     }
+    // display monthly timeline for zoomed in year
   } else {
     float monthlyWidth = xWidth*2/12;
     float xVal = xStart - (xWidth)*hs.scrollPercent;
@@ -279,6 +307,7 @@ void addXaxisLabels(){
 
 void addYAxisLabels(){
   fill(0);
+  // display axis to selected tab
   switch (selectedTab) {
           case "Temperature and Humidity":
             for(float i = yEnd, humVal = cityData.getHumMin(), tempVal = cityData.getTempMin(); 
@@ -364,7 +393,7 @@ void mousePressed(){
         selectedYear = yearMax;
       }
     }
-    
+    // gridlines toggle
     if (mouseX >= key00x && mouseX <= key00x+key00w && mouseY >= key03y && mouseY <= key03y+key03h) {
       button = !button;
     }
@@ -394,9 +423,11 @@ void mousePressed(){
         fill(#FBEEE6, 125);
         rect(highlightStart, yStart, highlightEnd, yEnd);
         fill(0);
+        textAlign(CENTER);
         text("Click to zoom for "+ yearMax, mouseX, mouseY+20);
        } else {
         fill(0);
+        textAlign(CENTER);
         text("Click to zoom out", mouseX, mouseY+20);
       }
     }
