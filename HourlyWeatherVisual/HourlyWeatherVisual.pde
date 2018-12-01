@@ -14,7 +14,6 @@ Map<String, City> data;
 HScrollbar hs;
 Map<Integer, Integer> yearToPixelMapping = new HashMap<Integer, Integer>();
 int selectedYear = 0;
-//int key00x = xEnd + 30, key02y = yStart + 430, key00w = xEnd + 135, key02h = yStart + 420;
 float key00x, key00w, key01y, key01h, key02y, key02h, key03y, key03h; 
 boolean button = true;
 color c1, c2;
@@ -27,7 +26,7 @@ List<String> months = new ArrayList<String>();
 float scrollPercent = 0;
 
 void setup(){
-  size(2000, 600);
+  size(1000, 600);
   c1 = color(#0080ff); // blue
   c2 = color(#FF0000); // red
   text("Loading. Please wait . . . ", 500, 500);
@@ -129,9 +128,6 @@ void drawDataPoints(){
         
         fill(c2);
         ellipse(xVal, yValTemp, 2, 2);
-        
-        //fill(#00ff40);
-        //ellipse(xVal, yValPres, 1, 2);
       }
     }
     
@@ -210,8 +206,8 @@ void addXaxisLabels(){
     float monthlyWidth = xWidth*2/12;
     float xVal = xStart - (xWidth)*hs.scrollPercent;
     for(String month: months){
+      text(month, xVal, yEnd+15);
         if(button && xVal <= xEnd && xVal >= 50){
-          text(month, xVal, yEnd+15);
           stroke(126);
           line(xVal, yStart, xVal, yEnd);
         }
