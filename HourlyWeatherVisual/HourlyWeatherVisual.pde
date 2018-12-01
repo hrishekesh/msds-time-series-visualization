@@ -206,10 +206,12 @@ void addXaxisLabels(){
     float monthlyWidth = xWidth*2/12;
     float xVal = xStart - (xWidth)*hs.scrollPercent;
     for(String month: months){
-      text(month, xVal, yEnd+15);
-        if(button && xVal <= xEnd && xVal >= 50){
-          stroke(126);
-          line(xVal, yStart, xVal, yEnd);
+        if(xVal <= xEnd && xVal >= 50){
+          text(month, xVal, yEnd+15);
+          if (button){
+            stroke(126);
+            line(xVal, yStart, xVal, yEnd);
+          }
         }
         xVal = xVal + monthlyWidth;
     }

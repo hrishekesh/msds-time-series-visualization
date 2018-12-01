@@ -55,7 +55,7 @@ class HScrollbar {
   public float getScrollPercent() {
     return scrollPercent;
   }
-  public void setScrollPercent(float scrollPercent) {
+  public void setcrollPercent(float scrollPercent) {
     this.scrollPercent = scrollPercent;
   }
   
