@@ -184,6 +184,57 @@ void drawDataPoints() {
 
           fill(c2);
           ellipse(xVal, yValTemp, 2, 2);
+          break;
+
+        case "Pressure":
+          //yaxis does not start from 0
+          float yValPres = 1660 - (city.getPressure() * pixelSpacingYPress);
+          fill(c3);
+          ellipse(xVal, yValPres, 2, 2);
+          break;
+
+        case "Wind Speed":
+          float yValSpeed = yEnd - (city.getWindSpeed() * pixelSpacingYWindSpeed);
+          fill(c4);
+          ellipse(xVal, yValSpeed, 2, 2);
+          break;
+        }
+      }
+    }
+  }
+  
+  for (String key : data.keySet()) {
+    City city = data.get(key);
+
+    // draw data only for selected city
+    if (selectedCity.equals(city.getName())) {
+      xVal = 0;
+
+      // in case user zooms in on an year, display monthly data for selected year
+      if (selectedYear != 0) {
+        String endDate = selectedYear + "-12-31 23:00:00";
+        String startDate = selectedYear + "-01-01 00:00:00";
+        float denom = (cityData.convertStringToDate(endDate).getTime() 
+          - cityData.convertStringToDate(startDate).getTime())/(xWidth*2);
+        if (city.getRecordDate().getYear()+1900 == selectedYear) {
+          xVal = (city.getRecordDate().getTime() - 
+            cityData.convertStringToDate(startDate).getTime())/denom + xStart 
+            - (xWidth)*hs.scrollPercent;
+        }
+      }
+
+      // if the user has not zoomed in, display yearly data
+      else {
+        xVal = (city.getRecordDate().getTime() - cityData.getMinDate().getTime()) 
+          /numValXaxis + xStart;
+      }
+
+      if (xVal >= 50 && xVal <= xEnd) {
+        // display data for selected tab
+        switch (selectedTab) {
+        case "Temperature and Humidity":
+          float yValHum = yEnd - (city.getHumidity() * pixelSpacingYHum);
+          float yValTemp = yEnd - (city.getTemperature() * pixelSpacingYTemp);
 
           //create rollover for humidity tab
           if (dist(mouseX, mouseY, xVal, yValHum) < 3) {
@@ -209,8 +260,6 @@ void drawDataPoints() {
         case "Pressure":
           //yaxis does not start from 0
           float yValPres = 1660 - (city.getPressure() * pixelSpacingYPress);
-          fill(c3);
-          ellipse(xVal, yValPres, 2, 2);
 
           //create rollover for pressure tab
           if (dist(mouseX, mouseY, xVal, yValPres) < 3) {
@@ -226,8 +275,6 @@ void drawDataPoints() {
 
         case "Wind Speed":
           float yValSpeed = yEnd - (city.getWindSpeed() * pixelSpacingYWindSpeed);
-          fill(c4);
-          ellipse(xVal, yValSpeed, 2, 2);
 
           //create rollover for wind speed tab
           if (dist(mouseX, mouseY, xVal, yValSpeed) < 3) {
