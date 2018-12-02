@@ -43,6 +43,9 @@ void setup() {
 
   //read data and create POJO instances
   cityData = new Weather();
+  cityData.setPressMin(770.0);
+  //setting Max Speed
+  cityData.setSpeedMax(30.0);
   numValXaxis = (cityData.getMaxDate().getTime() - cityData.getMinDate().getTime())/xWidth;
 
   // scale values as per display size
@@ -110,7 +113,7 @@ void draw() {
   line(xStart, yEnd, xEnd, yEnd);
   line(xEnd, yStart, xEnd, yEnd);
   noStroke();
-  //drawSubTitle();
+  addZoomInHighlight();
   drawDataPoints();
   addXaxisLabels();
   drawCitySelectionBoxes();
@@ -139,14 +142,8 @@ void draw() {
   }
 
   addYAxisLabels();
-  addZoomInHighlight();
   drawTabs();
 }
-
-//void drawSubTitle() {
-//  fill(0);
-
-//}
 
 void drawDataPoints() {
   float xVal = 0;
@@ -201,7 +198,8 @@ void drawDataPoints() {
           break;
 
         case "Pressure":
-          float yValPres = yEnd - (city.getPressure() * pixelSpacingYPress);
+          //yaxis does not start from 0
+          float yValPres = 1660 - (city.getPressure() * pixelSpacingYPress);
           fill(c3);
           ellipse(xVal, yValPres, 2, 2);
 
