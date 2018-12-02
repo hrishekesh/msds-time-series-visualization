@@ -195,6 +195,15 @@ void drawDataPoints() {
             fill(255);
             text(nf(city.getHumidity(), 0, 2), xVal, yValHum -8);
           }
+           if (dist(mouseX, mouseY, xVal, yValTemp) < 3) { //for temp
+                point(yValHum,yValTemp);
+                fill(0);
+                textSize(10);
+                textAlign(CENTER);
+                rect(xVal+25, yValTemp-18, xVal-20, yValTemp-4);
+                fill(255);
+                text(nf(city.getTemperature(), 0, 2), xVal, yValTemp -8);
+                }
           break;
 
         case "Pressure":
